@@ -73,6 +73,13 @@ ARDUINO_MODEL_PID = 0x0001
 # Mega 2560 PID:
 #ARDUINO_MODEL_PID = 0x0010
 
+# ---------------------------------------------------------------------------
+# Machine type and firmware version (can be overridden on the command line)
+# These values are embedded into the USB Product String at build time.
+# Example: make MACHINE_TYPE=UNO VERSION=1.1
+MACHINE_TYPE ?= MO_ENCODER
+VERSION      ?= 1.0
+
 
 # Target board (see library "Board Types" documentation, NONE for projects not requiring
 # LUFA board drivers). If USER is selected, put custom board drivers in a directory called
@@ -213,12 +220,16 @@ CDEFS += -DAVR_RESET_LINE_DDR="DDRD"
 CDEFS += -DAVR_RESET_LINE_MASK="(1 << 7)"
 CDEFS += -DTX_RX_LED_PULSE_MS=3
 CDEFS += -DPING_PONG_LED_PULSE_MS=100
+CDEFS += -DMACHINE_TYPE=\"$(MACHINE_TYPE)\"
+CDEFS += -DVERSION=\"$(VERSION)\"
 
 # Place -D or -U options here for ASM sources
 ADEFS  = -DF_CPU=$(F_CPU)
 ADEFS += -DF_CLOCK=$(F_CLOCK)UL
 ADEFS += -DBOARD=BOARD_$(BOARD)
 ADEFS += $(LUFA_OPTS)
+ADEFS += -DMACHINE_TYPE=\"$(MACHINE_TYPE)\"
+ADEFS += -DVERSION=\"$(VERSION)\"
 
 # Place -D or -U options here for C++ sources
 CPPDEFS  = -DF_CPU=$(F_CPU)UL
@@ -227,6 +238,8 @@ CPPDEFS += -DBOARD=BOARD_$(BOARD)
 CPPDEFS += $(LUFA_OPTS)
 #CPPDEFS += -D__STDC_LIMIT_MACROS
 #CPPDEFS += -D__STDC_CONSTANT_MACROS
+CPPDEFS += -DMACHINE_TYPE=\"$(MACHINE_TYPE)\"
+CPPDEFS += -DVERSION=\"$(VERSION)\"
 
 
 

@@ -65,9 +65,9 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 				
 	.Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 		
-	.VendorID               = 0x03EB, // Atmel
+	.VendorID               = 0x2341, // Arduino SA
 
-	.ProductID          	= 0x204B, // LUFA USB to Serial Demo Application
+	.ProductID          	= 0x0043, // Product ID 67 (decimal)
 	.ReleaseNumber          = 0x0001,
 		
 	.ManufacturerStrIndex   = 0x01,
@@ -208,22 +208,34 @@ const USB_Descriptor_String_t PROGMEM ManufacturerString =
 	.UnicodeString          = L"Arduino (www.arduino.cc)"
 };
 
+/*--------------------------------------------------------------------------
+ *  Build the Product string dynamically from the MACHINE_TYPE and VERSION
+ *  macros supplied at compile-time via the makefile. If they are not
+ *  provided, fall back to sensible defaults so that the build still
+ *  succeeds.
+ *------------------------------------------------------------------------*/
+#ifndef MACHINE_TYPE
+#   define MACHINE_TYPE "UNKNOWN"
+#endif
+
+#ifndef VERSION
+#   define VERSION "0.0"
+#endif
+
+#define WSTRING_CONCAT(a, b) a b
+#define WSTRING2(x)       L##x
+#define WSTRING(x)        WSTRING2(x)
+#define PRODUCT_STRING_TEXT  WSTRING_CONCAT(WSTRING(MACHINE_TYPE), WSTRING_CONCAT(L" ", WSTRING(VERSION)))
+#define PRODUCT_STRING_LEN   ((sizeof(PRODUCT_STRING_TEXT) / 2) - 1)
+
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
 const USB_Descriptor_String_t PROGMEM ProductString =
 {
-	#if (ARDUINO_MODEL_PID == ARDUINO_UNO_PID)
-		.Header                 = {.Size = USB_STRING_LEN(11), .Type = DTYPE_String},
-			
-		.UnicodeString          = L"Arduino Uno"
-	#elif (ARDUINO_MODEL_PID == ARDUINO_MEGA2560_PID)
-		.Header                 = {.Size = USB_STRING_LEN(17), .Type = DTYPE_String},
-			
-		.UnicodeString          = L"Arduino Mega 2560"
-	#endif
-	
+	.Header                 = {.Size = USB_STRING_LEN(PRODUCT_STRING_LEN), .Type = DTYPE_String},
+	.UnicodeString          = PRODUCT_STRING_TEXT
 };
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
